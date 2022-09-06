@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -36,23 +37,84 @@ public class TelegramBot extends TelegramLongPollingBot {
         return config.getToken();
     }
 
+    public boolean waitingWeight = false;
+    public boolean waitingGrowth = false;
+
     @Override
     public void onUpdateReceived(Update update) {
         if(update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
-            switch (messageText) {
-                case "/start":
-
-                    registerUser(update.getMessage());
-                    startCommand(chatId, update.getMessage().getChat().getFirstName());
-                    break;
-                default:
-                    log.info(messageText);
-                    sendMessage(chatId, "Такой команды не существует");
-                    break;
+            if(!waitingWeight & !waitingGrowth) {
+                switch (messageText) {
+                    case "/start":
+                        registerUser(update.getMessage());
+                        startCommand(chatId, update.getMessage().getChat().getFirstName());
+                        break;
+                    case "/weight":
+                        setWaitingWeightTrue();
+                        sendMessage(chatId, "Введите ваш вес");
+                        break;
+                    case "/growth":
+                        setWaitingGrowthTrue();
+                        sendMessage(chatId, "Введите ваш рост");
+                        break;
+                    default:
+                        log.info(messageText);
+                        System.out.println(waitingGrowth);
+                        System.out.println(waitingWeight);
+                        sendMessage(chatId, "Такой команды не существует");
+                        break;
+                }
             }
+
+            if (waitingWeight) {
+                registerWeight(update.getMessage());
+                setWaitingWeightTrue();
+            }
+            if (waitingGrowth) {
+                registerGrowth(update.getMessage());
+                setWaitingGrowthTrue();
+            }
+        }
+    }
+
+    public void setWaitingWeightTrue() {
+        this.waitingWeight = true;
+    }
+
+    public void setWaitingGrowthTrue() {
+        this.waitingGrowth = true;
+    }
+
+    public void setWaitingWeightFalse() {
+        this.waitingWeight = false;
+    }
+
+    public void setWaitingGrowthFalse() {
+        this.waitingGrowth = false;
+    }
+
+    private void registerWeight(Message message) {
+        try {
+            Double weight = Double.parseDouble(message.getText());
+            User user = takeUser(message);
+            user.setWeight(weight);
+            userRepository.save(user);
+        } catch (NumberFormatException e) {
+            sendMessage(message.getChatId(), "Введите коректное число");
+        }
+    }
+
+    private void registerGrowth(Message message) {
+        try {
+            Double growth = Double.parseDouble(message.getText());
+            User user = takeUser(message);
+            user.setGrowth(growth);
+            userRepository.save(user);
+        } catch (NumberFormatException e) {
+            sendMessage(message.getChatId(), "Введите коректное число");
         }
     }
 
@@ -67,12 +129,18 @@ public class TelegramBot extends TelegramLongPollingBot {
             user.setFirstName(chat.getFirstName());
             user.setLastName(chat.getLastName());
             user.setUserName(chat.getUserName());
-            user.setRegisterdAt(new Timestamp(System.currentTimeMillis()));
+            user.setRegistredAt(new Timestamp(System.currentTimeMillis()));
 
             userRepository.save(user);
             log.info("user saved: " + user);
 
         }
+    }
+
+    private User takeUser(Message message) {
+        User user = new User();
+        user.setChatId(message.getChatId());
+        return user;
     }
 
 
