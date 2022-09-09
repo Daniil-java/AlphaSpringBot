@@ -1,6 +1,6 @@
-package com.project.AlphaSpringBot.Config;
+package com.project.AlphaSpringBot.config;
 
-import com.project.AlphaSpringBot.Service.TelegramBot;
+import com.project.AlphaSpringBot.listener.TelegramBotListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -12,7 +12,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Component
 public class BotInit {
     @Autowired
-    TelegramBot bot;
+    private TelegramBotListener bot;
 
     @EventListener({ContextRefreshedEvent.class})
     public void init() throws TelegramApiException {

@@ -1,14 +1,13 @@
-package com.project.AlphaSpringBot.Service;
+package com.project.AlphaSpringBot.listener;
 
-import com.project.AlphaSpringBot.Config.BotConfig;
-import com.project.AlphaSpringBot.Model.User;
-import com.project.AlphaSpringBot.Model.UserRepository;
+import com.project.AlphaSpringBot.config.BotConfig;
+import com.project.AlphaSpringBot.model.User;
+import com.project.AlphaSpringBot.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -17,13 +16,14 @@ import java.sql.Timestamp;
 
 @Slf4j
 @Component
-public class TelegramBot extends TelegramLongPollingBot {
+public class TelegramBotListener extends TelegramLongPollingBot {
 
     @Autowired
     private UserRepository userRepository;
-    final BotConfig config;
+    @Autowired
+    private final BotConfig config;
 
-    public TelegramBot(BotConfig config) {
+    public TelegramBotListener(BotConfig config) {
         this.config = config;
     }
 
@@ -37,8 +37,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         return config.getToken();
     }
 
-    public boolean waitingWeight = false;
-    public boolean waitingGrowth = false;
+    private boolean waitingWeight = false;
+    private boolean waitingGrowth = false;
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -46,7 +46,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
-            if(!waitingWeight & !waitingGrowth) {
+            if(!waitingWeight && !waitingGrowth) {
                 switch (messageText) {
                     case "/start":
                         registerUser(update.getMessage());
@@ -54,16 +54,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     case "/weight":
                         setWaitingWeightTrue();
-                        sendMessage(chatId, "Введите ваш вес");
                         break;
                     case "/growth":
                         setWaitingGrowthTrue();
-                        sendMessage(chatId, "Введите ваш рост");
+                        break;
+                    case "/eat":
+                        eatProcess(update.getMessage());
                         break;
                     default:
                         log.info(messageText);
-                        System.out.println(waitingGrowth);
-                        System.out.println(waitingWeight);
                         sendMessage(chatId, "Такой команды не существует");
                         break;
                 }
@@ -71,12 +70,39 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             if (waitingWeight) {
                 registerWeight(update.getMessage());
-                setWaitingWeightTrue();
             }
             if (waitingGrowth) {
                 registerGrowth(update.getMessage());
-                setWaitingGrowthTrue();
             }
+        }
+    }
+
+    private void eatProcess(Message message) {
+    }
+
+    private void registerWeight(Message message) {
+        try {
+            sendMessage(message.getChatId(), "Введите ваш вес");
+            Double weight = Double.parseDouble(message.getText());
+            User user = takeUser(message);
+            user.setWeight(weight);
+            userRepository.save(user);
+            setWaitingWeightTrue();
+        } catch (NumberFormatException e) {
+            sendMessage(message.getChatId(), "Введите коректное число");
+        }
+    }
+
+    private void registerGrowth(Message message) {
+        try {
+            sendMessage(message.getChatId(), "Введите ваш рост");
+            Double growth = Double.parseDouble(message.getText());
+            User user = takeUser(message);
+            user.setGrowth(growth);
+            userRepository.save(user);
+            setWaitingGrowthTrue();
+        } catch (NumberFormatException e) {
+            sendMessage(message.getChatId(), "Введите коректное число");
         }
     }
 
@@ -94,28 +120,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     public void setWaitingGrowthFalse() {
         this.waitingGrowth = false;
-    }
-
-    private void registerWeight(Message message) {
-        try {
-            Double weight = Double.parseDouble(message.getText());
-            User user = takeUser(message);
-            user.setWeight(weight);
-            userRepository.save(user);
-        } catch (NumberFormatException e) {
-            sendMessage(message.getChatId(), "Введите коректное число");
-        }
-    }
-
-    private void registerGrowth(Message message) {
-        try {
-            Double growth = Double.parseDouble(message.getText());
-            User user = takeUser(message);
-            user.setGrowth(growth);
-            userRepository.save(user);
-        } catch (NumberFormatException e) {
-            sendMessage(message.getChatId(), "Введите коректное число");
-        }
     }
 
     private void registerUser(Message message) {

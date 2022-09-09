@@ -1,4 +1,4 @@
-package com.project.AlphaSpringBot.Model;
+package com.project.AlphaSpringBot.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

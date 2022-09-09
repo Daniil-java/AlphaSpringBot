@@ -1,4 +1,4 @@
-package com.project.AlphaSpringBot.Config;
+package com.project.AlphaSpringBot.config;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +10,8 @@ import org.springframework.context.annotation.PropertySource;
 @Data
 public class BotConfig {
     @Value("${bot.name}")
-    String botName;
+    private String botName;
     @Value("${bot.token}")
-    String token;
+    private String token;
+
 }
