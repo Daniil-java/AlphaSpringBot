@@ -30,15 +30,15 @@ public class UserDataCache implements DataCache{
 
     @Override
     public User getUser(Long userId) {
-        User userProfileData = usersData.get(userId);
-        if (userProfileData == null) {
-            userProfileData = new User();
+        User user = usersData.get(userId);
+        if (user == null) {
+            user = new User();
         }
-        return userProfileData;
+        return user;
     }
 
     @Override
-    public void saveUser(Long userId, User userProfileData) {
-        usersData.put(userId, userProfileData);
+    public void saveUser(Long userId, User user) {
+        usersData.put(userId, user);
     }
 }

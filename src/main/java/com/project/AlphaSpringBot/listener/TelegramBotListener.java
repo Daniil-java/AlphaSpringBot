@@ -34,6 +34,23 @@ public class TelegramBotListener extends TelegramLongPollingBot {
         this.botController = botController;
     }
 
+    @Override
+    public void onUpdateReceived(Update update) {
+        SendMessage replyMessageToUser = botController.handleUpdate(update);
+        sendMessage(update.getMessage().getChatId(), replyMessageToUser.getText());
+    }
+
+    private void sendMessage(long chatId, String textToSend) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(textToSend);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Override
     public String getBotUsername() {
@@ -45,10 +62,6 @@ public class TelegramBotListener extends TelegramLongPollingBot {
         return config.getToken();
     }
 
-    @Override
-    public void onUpdateReceived(Update update) {
-        botController.handleUpdate(update);
-    }
 
 //    private void registerUser(Message message) {
 //        if (userRepository.findById(message.getChatId()).isEmpty()) {

@@ -25,9 +25,8 @@ public class BotStateContext {
 
     private InputMessageHandler findMessageHandler(BotState currentState) {
         if (isProcessing(currentState)) {
-            return messageHandlers.get(BotState.PROCESSING);
+            return messageHandlers.get(BotState.EAT_START);
         }
-
         return messageHandlers.get(currentState);
     }
 
@@ -36,8 +35,11 @@ public class BotStateContext {
             case PROCESSING:
             case EAT_START:
             case EAT_NAME:
-            case EAT_COMPOUND:
             case EAT_WEIGHT:
+            case EAT_CALORIES:
+            case EAT_CARBOHYDRATES:
+            case EAT_FATS:
+            case EAT_PROTEINS:
             case PUKE_START:
             case PUKE_DELETE:
             case INFO_TODAY:
