@@ -46,6 +46,9 @@ public class BotController {
             case "/eat":
                 botState = BotState.EAT_START;
                 break;
+            case "/info_today":
+                botState = BotState.INFO_TODAY;
+                break;
             default:
                 botState = userDataCache.getUsersCurrentBotState(userId); //Отправляет пользователя на регистрацию
                 break;

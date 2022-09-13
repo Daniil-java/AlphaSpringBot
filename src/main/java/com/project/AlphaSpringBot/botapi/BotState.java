@@ -10,7 +10,9 @@ public enum BotState {
     EAT_PROTEINS,
     EAT_CARBOHYDRATES,
     EAT_WEIGHT,
+    EAT_CLOSE,
     PUKE_START,
     PUKE_DELETE,
+    INFO,
     INFO_TODAY
 }

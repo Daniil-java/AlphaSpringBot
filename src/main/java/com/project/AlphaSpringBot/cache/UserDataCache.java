@@ -1,21 +1,40 @@
 package com.project.AlphaSpringBot.cache;
 
 import com.project.AlphaSpringBot.botapi.BotState;
+import com.project.AlphaSpringBot.model.Food;
 import com.project.AlphaSpringBot.model.User;
+import com.project.AlphaSpringBot.repository.FoodRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 //По сути БД
 @Component
 public class UserDataCache implements DataCache{
+    @Autowired
+    private FoodRepository foodRepository;
+    private final EntityManagerFactory emf;
     private Map<Long, BotState> usersBotStates = new HashMap<>();
+    private Map<Long, Food> usersFood = new HashMap<>();
     private Map<Long, User> usersData = new HashMap<>();
+
+    public UserDataCache(EntityManagerFactory emf) {
+        this.emf = emf;
+    }
 
     @Override
     public void setUsersCurrentBotState(Long userId, BotState botState) {
         usersBotStates.put(userId, botState);
+    }
+    public void setFoodMap(Long userId) {
+        usersFood.put(userId, new Food());
     }
 
     @Override
@@ -26,6 +45,17 @@ public class UserDataCache implements DataCache{
         }
 
         return botState;
+    }
+
+    public Food getUsersCurrentFood(Long userId) {
+        Food food = usersFood.get(userId);
+        return food;
+    }
+
+    public void saveFood(Long userId) {
+        Food food = usersFood.get(userId);
+        foodRepository.save(food);
+        food = new Food();
     }
 
     @Override
@@ -40,5 +70,17 @@ public class UserDataCache implements DataCache{
     @Override
     public void saveUser(Long userId, User user) {
         usersData.put(userId, user);
+    }
+
+    public List<Food> getTodayList(Long userId) {
+        EntityManager entityManager = emf.createEntityManager();
+        Query query = entityManager
+                .createQuery("SELECT ft FROM foodTest1Table ft"
+                        + " WHERE ft.userId=:userId ");
+        query.setParameter("userId", userId);
+        List<Food> resultList = query.getResultList();
+        entityManager.close();
+        emf.close();
+        return resultList;
     }
 }

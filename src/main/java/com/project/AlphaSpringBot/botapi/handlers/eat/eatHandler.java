@@ -13,14 +13,13 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
+import java.sql.Timestamp;
+
 @Component
 @Slf4j
 public class eatHandler implements InputMessageHandler {
-    @Autowired
-    private FoodRepository foodRepository;
     private UserDataCache userDataCache;
     private ReplyMessagesService messagesService;
-
 
     public eatHandler(UserDataCache userDataCache,
                       ReplyMessagesService messagesService) {
@@ -32,6 +31,7 @@ public class eatHandler implements InputMessageHandler {
     public SendMessage handle(Message message) {
         if (userDataCache.getUsersCurrentBotState(message.getFrom().getId()).equals(BotState.EAT_START)) {
             userDataCache.setUsersCurrentBotState(message.getFrom().getId(), BotState.EAT_NAME);
+            userDataCache.setFoodMap(message.getFrom().getId());
         }
         return processFoodInput(message);
     }
@@ -42,17 +42,17 @@ public class eatHandler implements InputMessageHandler {
     }
 
     private SendMessage processFoodInput(Message inputMsg) {
-        Food food = new Food();
         String userAnswer = inputMsg.getText();
         var userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
-
+        Food food = userDataCache.getUsersCurrentFood(userId);
         BotState botState = userDataCache.getUsersCurrentBotState(userId);
 
         SendMessage replyToUser = new SendMessage();
 
         if (botState.equals(BotState.EAT_NAME)) {
-            food.setId(chatId);
+            food.setUserId(chatId);
+            food.setRegistredAt(new Timestamp(System.currentTimeMillis()));
             replyToUser = messagesService.getReplyMessage(chatId, "reply.EAT_NAME");
             userDataCache.setUsersCurrentBotState(userId, BotState.EAT_WEIGHT);
         }
@@ -107,7 +107,7 @@ public class eatHandler implements InputMessageHandler {
                 Integer fats = Integer.valueOf(userAnswer);
                 food.setFats(fats);
                 replyToUser = messagesService.getReplyMessage(chatId, "reply.EAT_CARBOHYDRATES");
-                userDataCache.setUsersCurrentBotState(userId, BotState.PROCESSING);
+                userDataCache.setUsersCurrentBotState(userId, BotState.EAT_CLOSE);
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 replyToUser = messagesService.getReplyMessage(chatId, "reply.NUMBER_EXC");
@@ -115,20 +115,21 @@ public class eatHandler implements InputMessageHandler {
             }
         }
 
-        if (botState.equals(BotState.PROCESSING)) {
+        if (botState.equals(BotState.EAT_CLOSE)) {
             try {
                 Integer ch = Integer.valueOf(userAnswer);
-                food.setFats(ch);
-                replyToUser = messagesService.getReplyMessage(chatId, "reply.EAT_CARBOHYDRATES");
-                userDataCache.setUsersCurrentBotState(userId, null);
+                food.setCarbohydrates(ch);
+                userDataCache.saveFood(userId);
+                replyToUser = messagesService.getReplyMessage(chatId, "reply.START");
+                userDataCache.setUsersCurrentBotState(userId, BotState.START);
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 replyToUser = messagesService.getReplyMessage(chatId, "reply.NUMBER_EXC");
-                userDataCache.setUsersCurrentBotState(userId, BotState.PROCESSING);
+                userDataCache.setUsersCurrentBotState(userId, BotState.START);
             }
         }
 
-        foodRepository.save(food);
+        log.info(food.toString());
 
         return replyToUser;
     }

@@ -27,6 +27,9 @@ public class BotStateContext {
         if (isProcessing(currentState)) {
             return messageHandlers.get(BotState.EAT_START);
         }
+        if (currentState.equals(BotState.INFO_TODAY)) {
+            return messageHandlers.get(BotState.INFO);
+        }
         return messageHandlers.get(currentState);
     }
 
@@ -40,9 +43,7 @@ public class BotStateContext {
             case EAT_CARBOHYDRATES:
             case EAT_FATS:
             case EAT_PROTEINS:
-            case PUKE_START:
-            case PUKE_DELETE:
-            case INFO_TODAY:
+            case EAT_CLOSE:
                 return true;
             default:
                 return false;
