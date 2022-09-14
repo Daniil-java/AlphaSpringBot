@@ -17,7 +17,7 @@ import java.util.Map;
 
 //По сути БД
 @Component
-public class UserDataCache implements DataCache{
+public class UserDataCache implements DataCache{    //Прослойка между БД и приложением
     @Autowired
     private FoodRepository foodRepository;
     private final EntityManagerFactory emf;
@@ -78,6 +78,19 @@ public class UserDataCache implements DataCache{
                 .createQuery("SELECT ft FROM foodTest1Table ft"
                         + " WHERE ft.userId=:userId ");
         query.setParameter("userId", userId);
+        List<Food> resultList = query.getResultList();
+        entityManager.close();
+        emf.close();
+        return resultList;
+    }
+
+    public List<Food> getFoodList(Long userId, int days) {
+        EntityManager entityManager = emf.createEntityManager();
+        Query query = entityManager
+                .createQuery("SELECT ft FROM food_Test1Table ft"
+                        + " WHERE ft.userId=:userId and DATE(registred_at) > :days");
+        query.setParameter("userId", userId);
+        query.setParameter("days", days);
         List<Food> resultList = query.getResultList();
         entityManager.close();
         emf.close();

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
+import java.util.Iterator;
 import java.util.List;
 
 @Component
@@ -29,14 +30,20 @@ public class infoHandler implements InputMessageHandler {
         long chatId = inputMsg.getChatId();
 
         if (userDataCache.getUsersCurrentBotState(inputMsg.getFrom().getId()).equals(BotState.INFO_TODAY)) {
-//            String result = "";
-//            List<Food> foodList = userDataCache.getTodayList(userId);
-//            for (Food f: foodList) {
-//                result.concat(f.toString() +"\n");
-//            }
-            return new SendMessage(String.valueOf(chatId), userDataCache.getTodayList(userId).toString());
+//            List<Food> foods = userDataCache.getTodayList(userId);
+            List<Food> foods = userDataCache.getFoodList(userId, 1);
+            return new SendMessage(String.valueOf(chatId), processInfo(foods));
         }
             return null;
+    }
+
+    private String processInfo(List<Food> foods) {
+        String falseResult = "Список пуст";
+        String result = "";
+        for (Food f: foods) {
+            result += result.concat(f.toStringForUser());
+        }
+        return result.equals("") ? falseResult : result;
     }
 
     @Override

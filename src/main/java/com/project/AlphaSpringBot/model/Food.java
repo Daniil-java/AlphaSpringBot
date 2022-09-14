@@ -46,4 +46,14 @@ public class Food {
                 ", registredAt=" + registredAt +
                 '}';
     }
+
+    public String toStringForUser() {
+        return "\n-----------------------\n" +
+                name +
+                ": К: " +calories*weight/100+
+                " Б: " +protein*weight/100+
+                " Ж: " +fats*weight/100+
+                " У: " +carbohydrates*weight/100+
+                "\n-----------------------\n";
+    }
 }
