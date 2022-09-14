@@ -5,7 +5,10 @@ import com.project.AlphaSpringBot.botapi.BotStateContext;
 import com.project.AlphaSpringBot.cache.UserDataCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -22,8 +25,8 @@ public class BotController {
 
     public SendMessage handleUpdate(Update update) {
         SendMessage replyMessage = null;
-
         Message message = update.getMessage();
+
         if (message != null && message.hasText()) {
             log.info("New message from User:{}, chatId: {},  with text: {}",
                     message.getFrom().getUserName(), message.getChatId(), message.getText());
@@ -48,6 +51,15 @@ public class BotController {
                 break;
             case "/info_today":
                 botState = BotState.INFO_TODAY;
+                break;
+            case "/puke":
+                botState = BotState.PUKE_START;
+                break;
+            case "/calories":
+                botState = BotState.CALORIES;
+                break;
+            case "/total":
+                botState = BotState.INFO_TOTAL;
                 break;
             default:
                 botState = userDataCache.getUsersCurrentBotState(userId); //Отправляет пользователя на регистрацию

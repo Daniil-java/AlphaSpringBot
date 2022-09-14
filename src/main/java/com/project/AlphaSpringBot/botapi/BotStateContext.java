@@ -30,7 +30,27 @@ public class BotStateContext {
         if (currentState.equals(BotState.INFO_TODAY)) {
             return messageHandlers.get(BotState.INFO);
         }
+        if (currentState.equals(BotState.INFO_TOTAL)) {
+            return messageHandlers.get(BotState.INFO);
+        }
+        if (isStatePuke(currentState)) {
+            return messageHandlers.get(BotState.PUKE_START);
+        }
+        if (isCaloriesRestict(currentState)) {
+            return messageHandlers.get(BotState.CALORIES);
+        }
         return messageHandlers.get(currentState);
+    }
+
+    private boolean isCaloriesRestict(BotState currentState) {
+        switch (currentState) {
+            case CALORIES:
+            case CALORIES_START:
+            case CALORIES_STOP:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private boolean isProcessing(BotState currentState) {
@@ -44,6 +64,17 @@ public class BotStateContext {
             case EAT_FATS:
             case EAT_PROTEINS:
             case EAT_CLOSE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isStatePuke(BotState currentState) {
+        switch (currentState) {
+            case PUKE_START:
+            case PUKE_DELETE:
+            case PUKE_INPUT:
                 return true;
             default:
                 return false;

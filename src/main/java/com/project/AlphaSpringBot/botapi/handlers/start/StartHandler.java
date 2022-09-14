@@ -11,21 +11,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Timestamp;
 
 @Slf4j
 @Component
-public class startHandler implements InputMessageHandler {
+public class StartHandler implements InputMessageHandler {
 
     @Autowired
     private UserRepository userRepository;
     private UserDataCache userDataCache;
     private ReplyMessagesService messagesService;
 
-    public startHandler(UserDataCache userDataCache,
-                             ReplyMessagesService messagesService) {
+    public StartHandler(UserDataCache userDataCache,
+                        ReplyMessagesService messagesService) {
         this.userDataCache = userDataCache;
         this.messagesService = messagesService;
     }

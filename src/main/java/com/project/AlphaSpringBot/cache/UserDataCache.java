@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 
 //По сути БД
 @Component
@@ -72,7 +72,7 @@ public class UserDataCache implements DataCache{    //Прослойка меж�
         usersData.put(userId, user);
     }
 
-    public List<Food> getTodayList(Long userId) {
+    public List<Food> getAllTimeList(Long userId) {
         EntityManager entityManager = emf.createEntityManager();
         Query query = entityManager
                 .createQuery("SELECT ft FROM foodTest1Table ft"
@@ -84,16 +84,23 @@ public class UserDataCache implements DataCache{    //Прослойка меж�
         return resultList;
     }
 
-    public List<Food> getFoodList(Long userId, int days) {
+    public List<Food> getFoodList(Long userId, double days) {
+        LocalDate localDate = LocalDate.now();
+        Date date = Date.from(localDate.minusDays((long) days).atStartOfDay()
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+
         EntityManager entityManager = emf.createEntityManager();
         Query query = entityManager
-                .createQuery("SELECT ft FROM food_Test1Table ft"
-                        + " WHERE ft.userId=:userId and DATE(registred_at) > :days");
+                .createQuery("SELECT ft FROM foodTest1Table ft"
+                        + " WHERE ft.userId=:userId AND ft.registredAt >= :date");
         query.setParameter("userId", userId);
-        query.setParameter("days", days);
+        query.setParameter("date", date);
         List<Food> resultList = query.getResultList();
-        entityManager.close();
-        emf.close();
         return resultList;
+    }
+
+    public void deleteFoodById(Long foodId) {
+        foodRepository.deleteById(foodId);
     }
 }

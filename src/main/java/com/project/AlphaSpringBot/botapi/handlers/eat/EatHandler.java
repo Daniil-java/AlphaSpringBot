@@ -4,24 +4,25 @@ import com.project.AlphaSpringBot.botapi.BotState;
 import com.project.AlphaSpringBot.botapi.InputMessageHandler;
 import com.project.AlphaSpringBot.cache.UserDataCache;
 import com.project.AlphaSpringBot.model.Food;
-import com.project.AlphaSpringBot.repository.FoodRepository;
-import com.project.AlphaSpringBot.repository.UserRepository;
 import com.project.AlphaSpringBot.service.ReplyMessagesService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Slf4j
-public class eatHandler implements InputMessageHandler {
+public class EatHandler implements InputMessageHandler {
     private UserDataCache userDataCache;
     private ReplyMessagesService messagesService;
 
-    public eatHandler(UserDataCache userDataCache,
+    public EatHandler(UserDataCache userDataCache,
                       ReplyMessagesService messagesService) {
         this.userDataCache = userDataCache;
         this.messagesService = messagesService;
@@ -120,8 +121,9 @@ public class eatHandler implements InputMessageHandler {
                 Integer ch = Integer.valueOf(userAnswer);
                 food.setCarbohydrates(ch);
                 userDataCache.saveFood(userId);
-                replyToUser = messagesService.getReplyMessage(chatId, "reply.START");
+                replyToUser = new SendMessage(String.valueOf(chatId), "reply.START");
                 userDataCache.setUsersCurrentBotState(userId, BotState.START);
+                replyToUser.setReplyMarkup(getInlineMessageButtons());
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 replyToUser = messagesService.getReplyMessage(chatId, "reply.NUMBER_EXC");
@@ -129,8 +131,27 @@ public class eatHandler implements InputMessageHandler {
             }
         }
 
-        log.info(food.toString());
-
         return replyToUser;
+    }
+
+    private InlineKeyboardMarkup getInlineMessageButtons() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        InlineKeyboardButton buttonYes = new InlineKeyboardButton("Всё верно");
+        InlineKeyboardButton buttonNo = new InlineKeyboardButton("Нет, неправильно");
+
+        buttonYes.setCallbackData("buttonYes");
+        buttonNo.setCallbackData("buttonNo");
+
+        List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
+        keyboardButtonsRow1.add(buttonYes);
+        keyboardButtonsRow1.add(buttonNo);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(keyboardButtonsRow1);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
+
+        return inlineKeyboardMarkup;
     }
 }
