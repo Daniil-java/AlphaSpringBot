@@ -1,5 +1,6 @@
-package com.project.AlphaSpringBot.Model;
+package com.project.AlphaSpringBot.repository;
 
+import com.project.AlphaSpringBot.model.User;
 import org.springframework.data.repository.CrudRepository;
 
 public interface UserRepository extends CrudRepository<User, Long> {
