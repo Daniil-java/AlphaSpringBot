@@ -64,6 +64,8 @@ public class BotStateContext {
             case EAT_FATS:
             case EAT_PROTEINS:
             case EAT_CLOSE:
+            case EAT_YESANSWER:
+            case EAT_NOANSWER:
                 return true;
             default:
                 return false;

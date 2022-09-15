@@ -8,8 +8,6 @@ import com.project.AlphaSpringBot.service.ReplyMessagesService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -36,7 +34,6 @@ public class InfoHandler implements InputMessageHandler {
             List<Food> foods = userDataCache.getFoodList(userId, 7);
 //            userDataCache.setUsersCurrentBotState(userId, BotState.START);
             SendMessage sendMessage = new SendMessage(String.valueOf(chatId), processInfo(foods));
-            sendMessage.setReplyMarkup(getInlineMessageButtons());
             return sendMessage;
         }
 
@@ -84,40 +81,5 @@ public class InfoHandler implements InputMessageHandler {
     @Override
     public BotState getHandlerName() {
         return BotState.INFO;
-    }
-
-    private InlineKeyboardMarkup getInlineMessageButtons() {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-
-        InlineKeyboardButton buttonYes = new InlineKeyboardButton();
-        InlineKeyboardButton buttonNo = new InlineKeyboardButton();
-        InlineKeyboardButton buttonIwillThink = new InlineKeyboardButton();
-        InlineKeyboardButton buttonIdontKnow = new InlineKeyboardButton();
-
-        buttonYes.setText("Да");
-        buttonNo.setText("Нет");
-        buttonIdontKnow.setText("RFD");
-        buttonIdontKnow.setText("IDFK");
-        buttonYes.setCallbackData("buttonYes");
-        buttonNo.setCallbackData("buttonNo");
-        buttonIwillThink.setCallbackData("buttonIwillThink");
-        buttonIdontKnow.setCallbackData("-");
-
-        List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
-        keyboardButtonsRow1.add(buttonYes);
-        keyboardButtonsRow1.add(buttonNo);
-
-        List<InlineKeyboardButton> keyboardButtonsRow2 = new ArrayList<>();
-        keyboardButtonsRow2.add(buttonIwillThink);
-        keyboardButtonsRow2.add(buttonIdontKnow);
-
-
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        rowList.add(keyboardButtonsRow1);
-        rowList.add(keyboardButtonsRow2);
-
-        inlineKeyboardMarkup.setKeyboard(rowList);
-
-        return inlineKeyboardMarkup;
     }
 }

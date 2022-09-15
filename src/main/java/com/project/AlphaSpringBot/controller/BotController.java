@@ -6,7 +6,6 @@ import com.project.AlphaSpringBot.cache.UserDataCache;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -25,6 +24,14 @@ public class BotController {
 
     public SendMessage handleUpdate(Update update) {
         SendMessage replyMessage = null;
+
+        if (update.hasCallbackQuery()) {
+            CallbackQuery callbackQuery = update.getCallbackQuery();
+            log.info("New callbackQuery from User: {}, userId: {}, with data: {}", update.getCallbackQuery().getFrom().getUserName(),
+                    callbackQuery.getFrom().getId(), update.getCallbackQuery().getData());
+            return processCallbackQuery(callbackQuery);
+        }
+        
         Message message = update.getMessage();
 
         if (message != null && message.hasText()) {
@@ -70,5 +77,37 @@ public class BotController {
         replyMessage = botStateContext.processInputMessage(botState, message);
 
         return replyMessage;
+    }
+
+    private SendMessage processCallbackQuery(CallbackQuery buttonQuery) {
+        final long chatId = buttonQuery.getMessage().getChatId();
+        final var userId = buttonQuery.getFrom().getId();
+        BotState botState;
+        SendMessage replyMessage;
+
+        switch (buttonQuery.getData()) {
+            case "buttonEatYes":
+                botState = BotState.EAT_YESANSWER;
+                break;
+            case "buttonEatNo":
+                botState = BotState.EAT_NOANSWER;
+                break;
+            default:
+                botState = userDataCache.getUsersCurrentBotState(userId);
+                break;
+        }
+
+        userDataCache.setUsersCurrentBotState(chatId, botState);
+        replyMessage = botStateContext.processInputMessage(botState, buttonQuery.getMessage());
+
+        return replyMessage;
+    }
+
+    private AnswerCallbackQuery sendAnswerCallbackQuery(String text, boolean alert, CallbackQuery callbackquery) {
+        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+        answerCallbackQuery.setCallbackQueryId(callbackquery.getId());
+        answerCallbackQuery.setShowAlert(alert);
+        answerCallbackQuery.setText(text);
+        return answerCallbackQuery;
     }
 }

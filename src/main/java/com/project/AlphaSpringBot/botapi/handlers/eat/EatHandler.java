@@ -34,7 +34,33 @@ public class EatHandler implements InputMessageHandler {
             userDataCache.setUsersCurrentBotState(message.getFrom().getId(), BotState.EAT_NAME);
             userDataCache.setFoodMap(message.getFrom().getId());
         }
+
+        if (userDataCache.getUsersCurrentBotState(message.getChatId()).equals(BotState.EAT_NOANSWER) ||
+                userDataCache.getUsersCurrentBotState(message.getChatId()).equals(BotState.EAT_YESANSWER)) {
+            return processFoodSave(message);
+        }
         return processFoodInput(message);
+    }
+
+    private SendMessage processFoodSave(Message message) {
+        String userAnswer = message.getText();
+        long chatId = message.getChatId();
+        Food food = userDataCache.getUsersCurrentFood(chatId);
+        BotState botState = userDataCache.getUsersCurrentBotState(chatId);
+        SendMessage replyToUser = new SendMessage();
+
+        if (botState.equals(BotState.EAT_YESANSWER)) {
+            userDataCache.saveFood(chatId);
+            userDataCache.setUsersCurrentBotState(chatId, BotState.START);
+            replyToUser = new SendMessage(String.valueOf(chatId), "Данные сохранены");
+        }
+
+        if (botState.equals(BotState.EAT_NOANSWER)) {
+            userDataCache.setUsersCurrentBotState(chatId, BotState.START);
+            replyToUser = new SendMessage(String.valueOf(chatId), "Данные удалены");
+        }
+
+        return replyToUser;
     }
 
     @Override
@@ -46,6 +72,7 @@ public class EatHandler implements InputMessageHandler {
         String userAnswer = inputMsg.getText();
         var userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
+
         Food food = userDataCache.getUsersCurrentFood(userId);
         BotState botState = userDataCache.getUsersCurrentBotState(userId);
 
@@ -120,19 +147,23 @@ public class EatHandler implements InputMessageHandler {
             try {
                 Integer ch = Integer.valueOf(userAnswer);
                 food.setCarbohydrates(ch);
-                userDataCache.saveFood(userId);
-                replyToUser = new SendMessage(String.valueOf(chatId), "reply.START");
-                userDataCache.setUsersCurrentBotState(userId, BotState.START);
+                userDataCache.setUsersCurrentBotState(userId, BotState.PROCESSING);
+                replyToUser = new SendMessage(String.valueOf(chatId), getCurrentFood(food));
                 replyToUser.setReplyMarkup(getInlineMessageButtons());
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 replyToUser = messagesService.getReplyMessage(chatId, "reply.NUMBER_EXC");
-                userDataCache.setUsersCurrentBotState(userId, BotState.START);
+                userDataCache.setUsersCurrentBotState(userId, BotState.EAT_CLOSE);
             }
         }
 
         return replyToUser;
     }
+
+     private String getCurrentFood(Food food) {
+        String result = food.toStringForUser();
+        return result;
+     }
 
     private InlineKeyboardMarkup getInlineMessageButtons() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -140,8 +171,8 @@ public class EatHandler implements InputMessageHandler {
         InlineKeyboardButton buttonYes = new InlineKeyboardButton("Всё верно");
         InlineKeyboardButton buttonNo = new InlineKeyboardButton("Нет, неправильно");
 
-        buttonYes.setCallbackData("buttonYes");
-        buttonNo.setCallbackData("buttonNo");
+        buttonYes.setCallbackData("buttonEatYes");
+        buttonNo.setCallbackData("buttonEatNo");
 
         List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
         keyboardButtonsRow1.add(buttonYes);

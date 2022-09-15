@@ -42,9 +42,7 @@ public class StartHandler implements InputMessageHandler {
     private SendMessage processUsersInput(Message inputMsg) {
         var userId = inputMsg.getFrom().getId();
         long chatId = inputMsg.getChatId();
-
         registerUser(inputMsg);
-
         SendMessage replyToUser = messagesService.getReplyMessage(chatId,"reply.START");
 
         return replyToUser;
@@ -65,7 +63,6 @@ public class StartHandler implements InputMessageHandler {
 
             userRepository.save(user);
             log.info("user saved: " + user);
-
         }
     }
 }

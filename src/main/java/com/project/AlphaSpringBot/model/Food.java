@@ -10,8 +10,6 @@ import java.sql.Timestamp;
 public class Food {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-//    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "t_generator")
-//    @SequenceGenerator(name = "t_generator", sequenceName = "foodTest1Table", initialValue=1)
     private Long id;
 
     @Column(name = "userId")
