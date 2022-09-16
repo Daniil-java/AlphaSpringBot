@@ -59,7 +59,6 @@ public class EatHandler implements InputMessageHandler {
             userDataCache.setUsersCurrentBotState(chatId, BotState.START);
             replyToUser = new SendMessage(String.valueOf(chatId), "Данные удалены");
         }
-
         return replyToUser;
     }
 
@@ -148,7 +147,9 @@ public class EatHandler implements InputMessageHandler {
                 Integer ch = Integer.valueOf(userAnswer);
                 food.setCarbohydrates(ch);
                 userDataCache.setUsersCurrentBotState(userId, BotState.PROCESSING);
-                replyToUser = new SendMessage(String.valueOf(chatId), getCurrentFood(food));
+                Integer calories = (userDataCache.getCaloriesLeft(chatId) - food.getCalories()*food.getWeight()/100);
+                replyToUser = new SendMessage(String.valueOf(chatId), getCurrentFood(food) +
+                        "Каллорий осталось: " + calories);
                 replyToUser.setReplyMarkup(getInlineMessageButtons());
             } catch (NumberFormatException e) {
                 e.printStackTrace();

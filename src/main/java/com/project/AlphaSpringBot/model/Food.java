@@ -46,7 +46,7 @@ public class Food {
     }
 
     public String toStringForUser() {
-        return "\n-----------------------\n" +
+        return "-----------------------\n" +
                 name +
                 ": К: " +calories*weight/100+
                 " Б: " +protein*weight/100+

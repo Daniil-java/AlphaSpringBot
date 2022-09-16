@@ -4,6 +4,7 @@ import com.project.AlphaSpringBot.botapi.BotState;
 import com.project.AlphaSpringBot.model.Food;
 import com.project.AlphaSpringBot.model.User;
 import com.project.AlphaSpringBot.repository.FoodRepository;
+import com.project.AlphaSpringBot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,9 @@ import java.util.*;
 public class UserDataCache implements DataCache{    //Прослойка между БД и приложением
     @Autowired
     private FoodRepository foodRepository;
+    @Autowired
+    private UserRepository userRepository;
+
     private final EntityManagerFactory emf;
     private Map<Long, BotState> usersBotStates = new HashMap<>();
     private Map<Long, Food> usersFood = new HashMap<>();
@@ -97,6 +101,16 @@ public class UserDataCache implements DataCache{    //Прослойка меж�
         query.setParameter("date", date);
         List<Food> resultList = query.getResultList();
         return resultList;
+    }
+
+    public Integer getCaloriesLeft(Long userId) {
+        List<Food> foodList = getFoodList(userId, 1);
+//        Integer caloriesLeft = usersData.get(userId).getcCalRestriction();
+        Integer caloriesLeft = userRepository.findById(userId).get().getcCalRestriction();
+        for (Food food: foodList) {
+            caloriesLeft -= food.getCalories();
+        }
+        return caloriesLeft;
     }
 
     public void deleteFoodById(Long foodId) {
