@@ -1,10 +1,10 @@
-package com.project.AlphaSpringBot.Model;
+package com.project.alphaspringbot.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.sql.Timestamp;
 
-@Entity(name="userDataTable")
+@Entity(name="userTestTable")
 public class User {
 
     @Id
@@ -16,7 +16,14 @@ public class User {
 
     private String userName;
 
-    private Timestamp registerdAt;
+    private Timestamp registredAt;
+
+    private Double growth;
+
+    private Double weight;
+
+    private Integer cCalRestriction;
+
 
     @Override
     public String toString() {
@@ -25,12 +32,36 @@ public class User {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", userName='" + userName + '\'' +
-                ", registerdAt=" + registerdAt +
+                ", registerdAt=" + registredAt +
                 '}';
     }
 
     public Long getChatId() {
         return chatId;
+    }
+
+    public Double getGrowth() {
+        return growth;
+    }
+
+    public void setGrowth(Double growth) {
+        this.growth = growth;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Integer getcCalRestriction() {
+        return cCalRestriction;
+    }
+
+    public void setcCalRestriction(Integer cCalRestriction) {
+        this.cCalRestriction = cCalRestriction;
     }
 
     public void setChatId(Long chatId) {
@@ -61,11 +92,12 @@ public class User {
         this.userName = userName;
     }
 
-    public Timestamp getRegisterdAt() {
-        return registerdAt;
+    public Timestamp getRegistredAt() {
+        return registredAt;
     }
 
-    public void setRegisterdAt(Timestamp registerdAt) {
-        this.registerdAt = registerdAt;
+    public void setRegistredAt(Timestamp registredAt) {
+        this.registredAt = registredAt;
     }
+
 }

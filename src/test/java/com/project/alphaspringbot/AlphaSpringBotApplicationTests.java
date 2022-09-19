@@ -1,4 +1,4 @@
-package com.project.AlphaSpringBot;
+package com.project.alphaspringbot;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
