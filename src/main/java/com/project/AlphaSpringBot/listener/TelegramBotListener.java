@@ -22,6 +22,8 @@ public class TelegramBotListener extends TelegramLongPollingBot {
     private UserRepository userRepository;
     @Autowired
     private final BotConfig config;
+    private boolean waitingWeight = false;
+    private boolean waitingGrowth = false;
 
     public TelegramBotListener(BotConfig config) {
         this.config = config;
@@ -36,9 +38,6 @@ public class TelegramBotListener extends TelegramLongPollingBot {
     public String getBotToken() {
         return config.getToken();
     }
-
-    private boolean waitingWeight = false;
-    private boolean waitingGrowth = false;
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -81,29 +80,33 @@ public class TelegramBotListener extends TelegramLongPollingBot {
     }
 
     private void registerWeight(Message message) {
+        Double weight = 0d;
         try {
             sendMessage(message.getChatId(), "Введите ваш вес");
-            Double weight = Double.parseDouble(message.getText());
-            User user = takeUser(message);
-            user.setWeight(weight);
-            userRepository.save(user);
-            setWaitingWeightTrue();
+            weight = Double.parseDouble(message.getText());
         } catch (NumberFormatException e) {
             sendMessage(message.getChatId(), "Введите коректное число");
         }
+        User user = new User();
+        user.setChatId(message.getChatId());
+        user.setWeight(weight);
+        userRepository.save(user);
+        setWaitingWeightTrue();
     }
 
     private void registerGrowth(Message message) {
+        Double growth = 0d;
         try {
             sendMessage(message.getChatId(), "Введите ваш рост");
-            Double growth = Double.parseDouble(message.getText());
-            User user = takeUser(message);
-            user.setGrowth(growth);
-            userRepository.save(user);
-            setWaitingGrowthTrue();
+            growth = Double.parseDouble(message.getText());
         } catch (NumberFormatException e) {
             sendMessage(message.getChatId(), "Введите коректное число");
         }
+        User user = new User();
+        user.setChatId(message.getChatId());
+        user.setGrowth(growth);
+        userRepository.save(user);
+        setWaitingGrowthTrue();
     }
 
     public void setWaitingWeightTrue() {
@@ -140,13 +143,6 @@ public class TelegramBotListener extends TelegramLongPollingBot {
 
         }
     }
-
-    private User takeUser(Message message) {
-        User user = new User();
-        user.setChatId(message.getChatId());
-        return user;
-    }
-
 
     private void startCommand(long chatId, String name) {
 
