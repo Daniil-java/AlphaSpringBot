@@ -68,6 +68,27 @@ public class BotController {
             case "/total":
                 botState = BotState.INFO_TOTAL;
                 break;
+            case "/help":
+                botState = BotState.HELP;
+                break;
+            case "/age":
+                botState = BotState.BODY_AGE_START;
+                break;
+            case "/sex":
+                botState = BotState.BODY_SEX_START;
+                break;
+            case "/weight":
+                botState = BotState.BODY_WEIGHT_START;
+                break;
+            case "/growth":
+                botState = BotState.BODY_GROWTH_START;
+                break;
+            case "/sport":
+                botState = BotState.BODY_SPORT_START;
+                break;
+            case "/calculate":
+                botState = BotState.BODY_CALCULATE;
+                break;
             default:
                 botState = userDataCache.getUsersCurrentBotState(userId); //Отправляет пользователя на регистрацию
                 break;
@@ -91,6 +112,18 @@ public class BotController {
                 break;
             case "buttonEatNo":
                 botState = BotState.EAT_NOANSWER;
+                break;
+            case "buttonBodyMan":
+                botState = BotState.BODY_SEX_MAN;
+                break;
+            case "buttonBodyWoman":
+                botState = BotState.BODY_SEX_WOMAN;
+                break;
+            case "buttonStartMan":
+                botState = BotState.START_SEX_MAN;
+                break;
+            case "buttonStartWoman":
+                botState = BotState.START_SEX_WOMAN;
                 break;
             default:
                 botState = userDataCache.getUsersCurrentBotState(userId);

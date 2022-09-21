@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
-//По сути БД
+
 @Component
 public class UserDataCache implements DataCache{    //Прослойка между БД и приложением
     @Autowired
@@ -102,7 +102,7 @@ public class UserDataCache implements DataCache{    //Прослойка меж�
 
     public Integer getCaloriesLeft(Long userId) {
         List<Food> foodList = getFoodList(userId, 1);
-        Integer caloriesLeft = userRepository.findById(userId).get().getcCalRestriction();
+        Integer caloriesLeft = userRepository.findById(userId).get().getCCalRestriction();
         for (Food food: foodList) {
             caloriesLeft -= food.getCalories();
         }

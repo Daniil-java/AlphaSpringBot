@@ -51,7 +51,7 @@ public class CaloriesHandler implements InputMessageHandler {
             }
             User user = new User();
             user.setChatId(chatId);
-            user.setcCalRestriction(calories);
+            user.setCCalRestriction(calories);
             userRepository.save(user);
             return replyMessage;
         }
